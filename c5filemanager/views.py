@@ -2,6 +2,9 @@
 import Image
 import os
 
+from django.http import HttpResponse
+from django.utils import simplejson
+
 from c5filemanager import settings
 
 
@@ -82,7 +85,13 @@ class Filemanager:
         return callback()
 
     def getinfo(self):
-        pass
+        path = get_path(self.request.GET.get('path', None))
+        getsize = self.request.GET.get('getsize', None)
+
+        file_info = create_file_info_for(path)
+
+        return HttpResponse(simplejson.dumps(file_info),
+                            mimetype='application/json')
 
     def getfolder(self):
         pass
