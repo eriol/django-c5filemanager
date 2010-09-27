@@ -94,7 +94,23 @@ class Filemanager:
                             mimetype='application/json')
 
     def getfolder(self):
-        pass
+        path = get_path(self.request.GET.get('path', None))
+        getsize = self.request.GET.get('getsize', None)
+
+        # A list to collect info for all the files in the directory
+        # pointed by ``path''
+        files_info = []
+
+        if os.path.isdir(path):
+            for filename in os.listdir(path):
+                file_path = os.path.join(path, filename)
+                files_info.append(create_file_info_for(file_path))
+        else:
+            return error('No such directory')
+
+        return HttpResponse(simplejson.dumps(files_info),
+                            mimetype='application/json')
+
 
     def rename(self):
         pass
