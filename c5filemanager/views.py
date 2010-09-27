@@ -106,7 +106,7 @@ class Filemanager:
                 file_path = os.path.join(path, filename)
                 files_info.append(create_file_info_for(file_path))
         else:
-            return error('No such directory')
+            files_info = error('No such directory')
 
         return HttpResponse(simplejson.dumps(files_info),
                             mimetype='application/json')
