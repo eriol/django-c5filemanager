@@ -1,4 +1,21 @@
 # -*- coding: utf-8 -*-
+import os
+
+from c5filemanager import settings
+
+def get_path(path):
+    """
+    Returns the ``path'' relative to settings.MEDIA_ROOT.
+    """
+    # Clean absolute path that will brake os.path.join!
+    if os.path.isabs(path):
+        path = path[1:]
+
+    return os.path.join(settings.MEDIA_ROOT,
+                        settings.C5FILEMANAGER_DIR,
+                        path)
+
+
 class Filemanager:
 
     def __call__(self, request):
