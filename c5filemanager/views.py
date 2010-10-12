@@ -11,19 +11,19 @@ from c5filemanager import settings
 IMAGES_EXT = ('jpg', 'jpeg', 'gif', 'png')
 
 
-def get_path(path):
+def get_path(requested_path):
     """
     Returns the ``path'' relative to settings.MEDIA_ROOT.
     """
     # Clean absolute path that will brake os.path.join!
-    if os.path.isabs(path):
-        path = path[1:]
+    if os.path.isabs(requested_path):
+        requested_path = requested_path[1:]
 
     return os.path.join(settings.MEDIA_ROOT,
                         settings.C5FILEMANAGER_DIR,
-                        path)
+                        requested_path)
 
-def create_file_info_for(path):
+def create_file_info_for(requested_path, real_path):
     """Fills proper file information needed by Code Five Filemanager."""
 
     file_info = {
@@ -42,27 +42,32 @@ def create_file_info_for(path):
         'Code': 0
     }
 
-    if os.path.exists(path):
-        file_info['Path'] = path
-        file_info['Filename'] = os.path.basename(path)
+    if os.path.exists(real_path):
+        file_info['Path'] = requested_path
+        file_info['Filename'] = os.path.basename(real_path)
         # Handle file extension: if ``path'' is a directory must be set to
         # 'dir', if absent or unknown to 'txt'.
-        if os.path.isdir(path):
-            ext = 'dir'
+        if os.path.isdir(real_path):
+            ext = 'Directory'
+            file_info['Return'] = requested_path
+            file_info['Path'] = file_info['Path'] + '/'
+
         else:
-            ext = os.path.splitext(path)[1].replace('.', '').lower()
+            ext = os.path.splitext(real_path)[1].replace('.', '').lower()
             if not ext:
                 ext = 'txt'
         file_info['File Type'] = ext
-        file_info['Preview'] = path
-        file_info['Properties']['Date Created'] = os.path.getctime(path)
-        file_info['Properties']['Date Modified'] = os.path.getmtime(path)
+        file_info['Preview'] = ''.join((settings.MEDIA_URL,
+                                        settings.C5FILEMANAGER_DIR,
+                                        requested_path))
+        file_info['Properties']['Date Created'] = os.path.getctime(real_path)
+        file_info['Properties']['Date Modified'] = os.path.getmtime(real_path)
         if ext in IMAGES_EXT:
-            img = Image.open(path)
+            img = Image.open(real_path)
             width, height = img.size
             file_info['Properties']['Height'] = height
             file_info['Properties']['Width'] = width
-        file_info['Properties']['Size'] = os.path.getsize(path)
+        file_info['Properties']['Size'] = os.path.getsize(real_path)
     else:
         return error('No such file or directory')
 
@@ -85,26 +90,31 @@ class Filemanager:
         return callback()
 
     def getinfo(self):
-        path = get_path(self.request.GET.get('path', None))
+        requested_path = self.request.GET.get('path', None)
+        real_path = get_path(requested_path)
+
         getsize = self.request.GET.get('getsize', None)
 
-        file_info = create_file_info_for(path)
+        file_info = create_file_info_for(requested_path, real_path)
 
         return HttpResponse(simplejson.dumps(file_info),
                             mimetype='application/json')
 
     def getfolder(self):
-        path = get_path(self.request.GET.get('path', None))
+        requested_path = self.request.GET.get('path', None)
+        real_path = get_path(requested_path)
         getsize = self.request.GET.get('getsize', None)
 
         # A list to collect info for all the files in the directory
         # pointed by ``path''
-        files_info = []
-
-        if os.path.isdir(path):
-            for filename in os.listdir(path):
-                file_path = os.path.join(path, filename)
-                files_info.append(create_file_info_for(file_path))
+        files_info = {}
+        if os.path.isdir(real_path):
+            for filename in os.listdir(real_path):
+                requested_file_path = os.path.join(requested_path, filename)
+                real_file_path = os.path.join(real_path, filename)
+                files_info['/' + filename] = create_file_info_for(
+                                                        requested_file_path,
+                                                        real_file_path)
         else:
             files_info = error('No such directory')
 
