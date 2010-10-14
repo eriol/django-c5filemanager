@@ -9,7 +9,12 @@ from c5filemanager import settings
 
 
 IMAGES_EXT = ('jpg', 'jpeg', 'gif', 'png')
-
+PREVIEW_IMAGES_PATH = 'images/fileicons/'
+PREVIEW_IMAGES = {
+    'Directory': PREVIEW_IMAGES_PATH + '_Open.png',
+    'Default': PREVIEW_IMAGES_PATH + 'default.png',
+    'Image': PREVIEW_IMAGES_PATH + '%s.png'
+}
 
 def get_path(requested_path):
     """
@@ -51,15 +56,15 @@ def create_file_info_for(requested_path, real_path):
             ext = 'Directory'
             file_info['Return'] = requested_path
             file_info['Path'] = file_info['Path'] + '/'
-
+            preview = PREVIEW_IMAGES['Directory']
         else:
             ext = os.path.splitext(real_path)[1].replace('.', '').lower()
             if not ext:
+                preview = PREVIEW_IMAGES['Default']
                 ext = 'txt'
+            else:
+                preview = PREVIEW_IMAGES['Image'] % ext
         file_info['File Type'] = ext
-        file_info['Preview'] = ''.join((settings.MEDIA_URL,
-                                        settings.C5FILEMANAGER_DIR,
-                                        requested_path))
         file_info['Properties']['Date Created'] = os.path.getctime(real_path)
         file_info['Properties']['Date Modified'] = os.path.getmtime(real_path)
         if ext in IMAGES_EXT:
@@ -67,6 +72,10 @@ def create_file_info_for(requested_path, real_path):
             width, height = img.size
             file_info['Properties']['Height'] = height
             file_info['Properties']['Width'] = width
+            preview = ''.join((settings.MEDIA_URL,
+                               settings.C5FILEMANAGER_DIR,
+                               requested_path))
+        file_info['Preview'] = preview
         file_info['Properties']['Size'] = os.path.getsize(real_path)
     else:
         return error('No such file or directory')
