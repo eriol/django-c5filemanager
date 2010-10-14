@@ -6,6 +6,9 @@ import Image
 
 from django.http import HttpResponse
 from django.utils import simplejson
+# For OrderedDict is needed simplejson >= 2.1.0
+from django.utils.simplejson import OrderedDict
+
 
 from c5filemanager import settings
 
@@ -118,14 +121,14 @@ class Filemanager:
 
         # A list to collect info for all the files in the directory
         # pointed by ``path''
-        files_info = {}
+        files_info = OrderedDict()
         if os.path.isdir(real_path):
-            for filename in os.listdir(real_path):
+            for filename in sorted(os.listdir(real_path), key=unicode.lower):
                 requested_file_path = os.path.join(requested_path, filename)
                 real_file_path = os.path.join(real_path, filename)
-                files_info['/' + filename] = create_file_info_for(
-                                                        requested_file_path,
-                                                        real_file_path)
+                files_info[filename] = create_file_info_for(
+                                           requested_file_path,
+                                           real_file_path)
         else:
             files_info = error('No such directory')
 
