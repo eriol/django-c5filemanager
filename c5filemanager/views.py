@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-import Image
 import os
+import shutil
+
+import Image
 
 from django.http import HttpResponse
 from django.utils import simplejson
@@ -132,7 +134,31 @@ class Filemanager:
 
 
     def rename(self):
-        pass
+        old_path = self.request.GET.get('old', None)
+        new_path = self.request.GET.get('new', None)
+        response = {}
+
+        old_file = get_path(old_path)
+
+        if os.path.exists(old_file):
+            old_name = os.path.basename(old_file)
+            old_path_dir = os.path.dirname(old_file)
+            # Using rename to move a file is not allowed so any directory
+            # will be stripped.
+            new_name = os.path.basename(new_path)
+            new_file = os.path.join(old_path_dir, new_name)
+            shutil.move(old_file, os.path.join(old_path_dir, new_name))
+            response['Code'] = 0
+            response['Error'] = 'No Error'
+            response['Old Path'] = old_file
+            response['Old Name'] = old_name
+            response['New Path'] = new_file
+            response['New Name'] = new_name
+        else:
+            response = error('No such file or directory')
+
+        return HttpResponse(simplejson.dumps(response),
+                            mimetype='application/json')
 
     def delete(self):
         pass
