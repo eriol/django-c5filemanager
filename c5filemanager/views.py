@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.utils import simplejson
 # For OrderedDict is needed simplejson >= 2.1.0
 from django.utils.simplejson import OrderedDict
-
+from django.views.decorators.csrf import csrf_exempt
 
 from c5filemanager import settings
 
@@ -93,13 +93,19 @@ def error(message, code=-1):
     return err
 
 
+
 class Filemanager:
 
+    @csrf_exempt
     def __call__(self, request):
         self.request = request
 
-        mode = self.request.GET.get('mode', None)
-        callback = getattr(self, mode)
+        if self.request.method == 'GET':
+            mode = self.request.GET.get('mode', None)
+            if mode is not None:
+                callback = getattr(self, mode)
+        elif self.request.method == 'POST':
+            return self.add()
 
         return callback()
 
