@@ -186,7 +186,20 @@ class Filemanager:
         pass
 
     def addfolder(self):
-        pass
+        requested_path = self.request.GET.get('path', None)
+        dir_name = self.request.GET.get('name', None)
+        response = {}
+
+        real_path = get_path(requested_path)
+
+        os.mkdir(os.path.join(real_path, dir_name))
+        response['Code'] = 0
+        response['Error'] = 'No Error'
+        response['Parent'] = requested_path
+        response['Name'] = dir_name
+
+        return HttpResponse(simplejson.dumps(response),
+                            mimetype='application/json')
 
     def download(self):
         pass
