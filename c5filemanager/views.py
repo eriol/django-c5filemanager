@@ -164,7 +164,23 @@ class Filemanager:
                             mimetype='application/json')
 
     def delete(self):
-        pass
+        requested_path = self.request.GET.get('path', None)
+        file_to_be_deleted = get_path(requested_path)
+        response = {}
+
+        if os.path.exists(file_to_be_deleted):
+            if os.path.isdir(file_to_be_deleted):
+                os.rmdir(file_to_be_deleted)
+            else:
+                os.remove(file_to_be_deleted)
+            response['Code'] = 0
+            response['Error'] = 'No Error'
+            response['Path'] = requested_path
+        else:
+            response = error('No such file or directory')
+
+        return HttpResponse(simplejson.dumps(response),
+                            mimetype='application/json')
 
     def add(self):
         pass
