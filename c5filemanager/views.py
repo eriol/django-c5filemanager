@@ -98,120 +98,124 @@ def error(message, code=-1):
     err = {'Error': message, 'Code': code}
     return err
 
+def getinfo(request):
+    requested_path = request.GET.get('path', None)
+    real_path = get_path(requested_path)
+
+    getsize = request.GET.get('getsize', None)
+
+    file_info = create_file_info_for(requested_path, real_path)
+
+    return HttpResponse(simplejson.dumps(file_info),
+                        mimetype='application/json')
+
+def getfolder(request):
+    requested_path = request.GET.get('path', None)
+    real_path = get_path(requested_path)
+    getsize = request.GET.get('getsize', None)
+
+    # A list to collect info for all the files in the directory
+    # pointed by ``path''
+    files_info = OrderedDict()
+    if os.path.isdir(real_path):
+        for filename in sorted(os.listdir(real_path), key=unicode.lower):
+            requested_file_path = os.path.join(requested_path, filename)
+            real_file_path = os.path.join(real_path, filename)
+            files_info[filename] = create_file_info_for(
+                                        requested_file_path,
+                                        real_file_path)
+    else:
+        files_info = error('No such directory')
+
+    return HttpResponse(simplejson.dumps(files_info),
+                        mimetype='application/json')
 
 
-class Filemanager:
+def rename(request):
+    old_path = request.GET.get('old', None)
+    new_path = request.GET.get('new', None)
+    response = {}
 
-    @csrf_exempt
-    def __call__(self, request):
-        self.request = request
+    old_file = get_path(old_path)
 
-        if self.request.method == 'GET':
-            mode = self.request.GET.get('mode', None)
-            if mode is not None:
-                callback = getattr(self, mode)
-        elif self.request.method == 'POST':
-            return self.add()
-
-        return callback()
-
-    def getinfo(self):
-        requested_path = self.request.GET.get('path', None)
-        real_path = get_path(requested_path)
-
-        getsize = self.request.GET.get('getsize', None)
-
-        file_info = create_file_info_for(requested_path, real_path)
-
-        return HttpResponse(simplejson.dumps(file_info),
-                            mimetype='application/json')
-
-    def getfolder(self):
-        requested_path = self.request.GET.get('path', None)
-        real_path = get_path(requested_path)
-        getsize = self.request.GET.get('getsize', None)
-
-        # A list to collect info for all the files in the directory
-        # pointed by ``path''
-        files_info = OrderedDict()
-        if os.path.isdir(real_path):
-            for filename in sorted(os.listdir(real_path), key=unicode.lower):
-                requested_file_path = os.path.join(requested_path, filename)
-                real_file_path = os.path.join(real_path, filename)
-                files_info[filename] = create_file_info_for(
-                                           requested_file_path,
-                                           real_file_path)
-        else:
-            files_info = error('No such directory')
-
-        return HttpResponse(simplejson.dumps(files_info),
-                            mimetype='application/json')
-
-
-    def rename(self):
-        old_path = self.request.GET.get('old', None)
-        new_path = self.request.GET.get('new', None)
-        response = {}
-
-        old_file = get_path(old_path)
-
-        if os.path.exists(old_file):
-            old_name = os.path.basename(old_file)
-            old_path_dir = os.path.dirname(old_file)
-            # Using rename to move a file is not allowed so any directory
-            # will be stripped.
-            new_name = os.path.basename(new_path)
-            new_file = os.path.join(old_path_dir, new_name)
-            shutil.move(old_file, os.path.join(old_path_dir, new_name))
-            response['Code'] = 0
-            response['Error'] = 'No Error'
-            response['Old Path'] = old_file
-            response['Old Name'] = old_name
-            response['New Path'] = new_file
-            response['New Name'] = new_name
-        else:
-            response = error('No such file or directory')
-
-        return HttpResponse(simplejson.dumps(response),
-                            mimetype='application/json')
-
-    def delete(self):
-        requested_path = self.request.GET.get('path', None)
-        file_to_be_deleted = get_path(requested_path)
-        response = {}
-
-        if os.path.exists(file_to_be_deleted):
-            if os.path.isdir(file_to_be_deleted):
-                os.rmdir(file_to_be_deleted)
-            else:
-                os.remove(file_to_be_deleted)
-            response['Code'] = 0
-            response['Error'] = 'No Error'
-            response['Path'] = requested_path
-        else:
-            response = error('No such file or directory')
-
-        return HttpResponse(simplejson.dumps(response),
-                            mimetype='application/json')
-
-    def add(self):
-        pass
-
-    def addfolder(self):
-        requested_path = self.request.GET.get('path', None)
-        dir_name = self.request.GET.get('name', None)
-        response = {}
-
-        real_path = get_path(requested_path)
-
-        os.mkdir(os.path.join(real_path, dir_name))
+    if os.path.exists(old_file):
+        old_name = os.path.basename(old_file)
+        old_path_dir = os.path.dirname(old_file)
+        # Using rename to move a file is not allowed so any directory
+        # will be stripped.
+        new_name = os.path.basename(new_path)
+        new_file = os.path.join(old_path_dir, new_name)
+        shutil.move(old_file, os.path.join(old_path_dir, new_name))
         response['Code'] = 0
         response['Error'] = 'No Error'
-        response['Parent'] = requested_path
-        response['Name'] = dir_name
+        response['Old Path'] = old_file
+        response['Old Name'] = old_name
+        response['New Path'] = new_file
+        response['New Name'] = new_name
+    else:
+        response = error('No such file or directory')
 
-        return HttpResponse(simplejson.dumps(response),
-                            mimetype='application/json')
+    return HttpResponse(simplejson.dumps(response),
+                        mimetype='application/json')
 
-    def download(self):
-        pass
+def delete(request):
+    requested_path = request.GET.get('path', None)
+    file_to_be_deleted = get_path(requested_path)
+    response = {}
+
+    if os.path.exists(file_to_be_deleted):
+        if os.path.isdir(file_to_be_deleted):
+            os.rmdir(file_to_be_deleted)
+        else:
+            os.remove(file_to_be_deleted)
+        response['Code'] = 0
+        response['Error'] = 'No Error'
+        response['Path'] = requested_path
+    else:
+        response = error('No such file or directory')
+
+    return HttpResponse(simplejson.dumps(response),
+                        mimetype='application/json')
+
+def add(request):
+    pass
+
+def addfolder(request):
+    requested_path = request.GET.get('path', None)
+    dir_name = request.GET.get('name', None)
+    response = {}
+
+    real_path = get_path(requested_path)
+
+    os.mkdir(os.path.join(real_path, dir_name))
+    response['Code'] = 0
+    response['Error'] = 'No Error'
+    response['Parent'] = requested_path
+    response['Name'] = dir_name
+
+    return HttpResponse(simplejson.dumps(response),
+                        mimetype='application/json')
+
+def download(request):
+    pass
+
+handlers = {
+    'getinfo': getinfo,
+    'getfolder': getfolder,
+    'rename': rename,
+    'delete': delete,
+    'addfolder': addfolder,
+    'download': download
+}
+
+@csrf_exempt
+def filemanager(request):
+    if request.method == 'GET':
+        mode = request.GET.get('mode', None)
+        if mode is not None:
+            print mode
+            callback = handlers[mode]
+    elif request.method == 'POST':
+        return add(request)
+
+    return callback(request)
