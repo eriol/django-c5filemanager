@@ -65,10 +65,16 @@ def create_file_info_for(requested_path, real_path):
         else:
             ext = os.path.splitext(real_path)[1].replace('.', '').lower()
             if not ext:
-                preview = PREVIEW_IMAGES['Default']
                 ext = 'txt'
+                preview = PREVIEW_IMAGES['Default']
             else:
                 preview = PREVIEW_IMAGES['Image'] % ext
+                # Check if the icon for the specified extension exists.
+                preview_file_path = os.path.join(settings.MEDIA_ROOT,
+                                        settings.C5FILEMANAGER_MEDIA,
+                                        preview)
+                if not os.path.exists(preview_file_path):
+                    preview = PREVIEW_IMAGES['Default']
         file_info['File Type'] = ext
         file_info['Properties']['Date Created'] = os.path.getctime(real_path)
         file_info['Properties']['Date Modified'] = os.path.getmtime(real_path)
