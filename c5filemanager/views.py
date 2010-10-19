@@ -178,7 +178,20 @@ def delete(request):
                         mimetype='application/json')
 
 def add(request):
-    pass
+    requested_path = request.POST.get('currentpath', None)
+    new_file = request.FILES['newfile']
+    response = {}
+    try:
+        handle_uploaded_file(requested_path, new_file)
+    except IOError, e:
+        response = error(e.strerror)
+    else:
+        response['Path'] = requested_path
+        response['Name'] = new_file.name
+        response['Code'] = 0
+        response['Error'] = 'No Error'
+    html = '<textarea>' + simplejson.dumps(response) + '</textarea>'
+    return HttpResponse(html)
 
 def addfolder(request):
     requested_path = request.GET.get('path', None)
@@ -207,6 +220,17 @@ handlers = {
     'addfolder': addfolder,
     'download': download
 }
+
+def handle_uploaded_file(path, f):
+    real_path = get_path(path)
+    new_file = os.path.join(real_path, f.name)
+    try:
+        destination = open(new_file, 'wb+')
+        for chunk in f.chunks():
+            destination.write(chunk)
+        destination.close()
+    except IOError:
+        raise
 
 @csrf_exempt
 def filemanager(request):
