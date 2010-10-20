@@ -4,6 +4,7 @@ import shutil
 
 import Image
 
+from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse
 from django.utils import simplejson
 # For OrderedDict is needed simplejson >= 2.1.0
@@ -210,7 +211,14 @@ def addfolder(request):
                         mimetype='application/json')
 
 def download(request):
-    pass
+    requested_path = request.GET.get('path', None)
+    real_path = get_path(requested_path)
+    filename = os.path.basename(real_path)
+    response = HttpResponse(FileWrapper(file(real_path)),
+                            content_type='application/x-download')
+    response['Content-Length'] = os.path.getsize(real_path)
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    return response
 
 handlers = {
     'getinfo': getinfo,
