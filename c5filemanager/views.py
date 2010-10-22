@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import shutil
+import urllib
 
 import Image
 
@@ -39,6 +40,7 @@ def create_file_info_for(requested_path, real_path):
 
     file_info = {
         'Path': '',
+        'Return': '',
         'Filename': '',
         'File Type': '',
         'Preview': '',
@@ -60,8 +62,8 @@ def create_file_info_for(requested_path, real_path):
         # 'dir', if absent or unknown to 'txt'.
         if os.path.isdir(real_path):
             ext = 'Directory'
-            file_info['Return'] = requested_path
             file_info['Path'] = file_info['Path'] + '/'
+            file_info['Return'] = requested_path
             preview = PREVIEW_IMAGES['Directory']
         else:
             ext = os.path.splitext(real_path)[1].replace('.', '').lower()
@@ -245,9 +247,30 @@ def filemanager(request):
     if request.method == 'GET':
         mode = request.GET.get('mode', None)
         if mode is not None:
-            print mode
             callback = handlers[mode]
     elif request.method == 'POST':
         return add(request)
 
     return callback(request)
+
+@csrf_exempt
+def dir_list(request):
+    requested_path = urllib.unquote(request.POST.get('dir', None))
+    real_path = get_path(requested_path)
+    response = ['<ul class="jqueryFileTree" style="display: none;">']
+    dir_item = ('<li class="directory collapsed">'
+                '<a href="#" rel="%s/">%s</a></li>')
+    file_item = '<li class="file ext_%s"><a href="#" rel="%s">%s</a></li>'
+    if os.path.isdir(real_path):
+        for filename in sorted(os.listdir(real_path), key=unicode.lower):
+            ext = os.path.splitext(filename)[1].replace('.', '').lower()
+            full_requested_path = os.path.join(requested_path, filename)
+            full_real_path = os.path.join(real_path, filename)
+            if os.path.isdir(full_real_path):
+                response.append(dir_item % (full_requested_path, filename))
+            else:
+                response.append(file_item % (ext,
+                                             full_requested_path,
+                                             filename))
+    response.append('</ul>')
+    return HttpResponse(''.join(response))
