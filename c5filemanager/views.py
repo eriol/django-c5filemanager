@@ -43,7 +43,6 @@ def create_file_info_for(requested_path, real_path):
 
     file_info = {
         'Path': '',
-        'Return': '',
         'Filename': '',
         'File Type': '',
         'Preview': '',
@@ -66,10 +65,9 @@ def create_file_info_for(requested_path, real_path):
         if os.path.isdir(real_path):
             ext = 'Directory'
             file_info['Path'] = file_info['Path'] + '/'
-            file_info['Return'] = requested_path
             preview = PREVIEW_IMAGES['Directory']
         else:
-            ext = os.path.splitext(real_path)[1].replace('.', '').lower()
+            ext = os.path.splitext(real_path)[1][1:].lower()
             if not ext:
                 ext = 'txt'
                 preview = PREVIEW_IMAGES['Default']
@@ -268,7 +266,7 @@ def dir_list(request):
     file_item = '<li class="file ext_%s"><a href="#" rel="%s">%s</a></li>'
     if os.path.isdir(real_path):
         for filename in sorted(os.listdir(real_path), key=unicode.lower):
-            ext = os.path.splitext(filename)[1].replace('.', '').lower()
+            ext = os.path.splitext(filename)[1][1:].lower()
             full_requested_path = os.path.join(requested_path, filename)
             full_real_path = os.path.join(real_path, filename)
             if os.path.isdir(full_real_path):
