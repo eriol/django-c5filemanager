@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import shutil
+import time
 import urllib
 
 import Image
@@ -22,6 +23,8 @@ PREVIEW_IMAGES = {
     'Default': PREVIEW_IMAGES_PATH + 'default.png',
     'Image': PREVIEW_IMAGES_PATH + '%s.png'
 }
+
+TIME_FORMAT = '%Y/%m/%d - %H:%M:%S'
 
 def get_path(requested_path):
     """
@@ -79,8 +82,10 @@ def create_file_info_for(requested_path, real_path):
                 if not os.path.exists(preview_file_path):
                     preview = PREVIEW_IMAGES['Default']
         file_info['File Type'] = ext
-        file_info['Properties']['Date Created'] = os.path.getctime(real_path)
-        file_info['Properties']['Date Modified'] = os.path.getmtime(real_path)
+        file_info['Properties']['Date Created'] = time.strftime(TIME_FORMAT,
+            time.localtime(os.path.getctime(real_path)))
+        file_info['Properties']['Date Modified'] = time.strftime(TIME_FORMAT,
+            time.localtime(os.path.getmtime(real_path)))
         if ext in IMAGES_EXT:
             img = Image.open(real_path)
             width, height = img.size
