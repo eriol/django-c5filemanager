@@ -27,9 +27,7 @@ PREVIEW_IMAGES = {
 TIME_FORMAT = '%Y/%m/%d - %H:%M:%S'
 
 def get_path(requested_path):
-    """
-    Returns the ``path'' relative to settings.MEDIA_ROOT.
-    """
+    """Make the passed path relative to settings.MEDIA_ROOT."""
     # Clean absolute path that will brake os.path.join!
     if os.path.isabs(requested_path):
         requested_path = requested_path[1:]
@@ -39,8 +37,7 @@ def get_path(requested_path):
                         requested_path)
 
 def create_file_info_for(requested_path, real_path):
-    """Fills proper file information needed by Code Five Filemanager."""
-
+    """Fill proper file information needed by Code Five Filemanager."""
     file_info = {
         'Path': '',
         'Filename': '',
@@ -100,11 +97,12 @@ def create_file_info_for(requested_path, real_path):
     return file_info
 
 def error(message, code=-1):
-    """Returns an error."""
+    """Return an error with the specified message and code."""
     err = {'Error': message, 'Code': code}
     return err
 
 def getinfo(request):
+    """Return information about a file."""
     requested_path = request.GET.get('path', None)
     real_path = get_path(requested_path)
 
@@ -116,11 +114,12 @@ def getinfo(request):
                         mimetype='application/json')
 
 def getfolder(request):
+    """Return the collected info about all the files inside a directory."""
     requested_path = request.GET.get('path', None)
     real_path = get_path(requested_path)
     getsize = request.GET.get('getsize', None)
 
-    # A list to collect info for all the files in the directory
+    # An ordered dict to collect info for all the files in the directory
     # pointed by ``path''
     files_info = OrderedDict()
     if os.path.isdir(real_path):
@@ -138,6 +137,7 @@ def getfolder(request):
 
 
 def rename(request):
+    """Rename a file or directory."""
     old_path = request.GET.get('old', None)
     new_path = request.GET.get('new', None)
     response = {}
@@ -165,6 +165,7 @@ def rename(request):
                         mimetype='application/json')
 
 def delete(request):
+    """Delete a file."""
     requested_path = request.GET.get('path', None)
     file_to_be_deleted = get_path(requested_path)
     response = {}
@@ -184,6 +185,7 @@ def delete(request):
                         mimetype='application/json')
 
 def add(request):
+    """Add a new file."""
     requested_path = request.POST.get('currentpath', None)
     new_file = request.FILES['newfile']
     response = {}
@@ -200,6 +202,7 @@ def add(request):
     return HttpResponse(html)
 
 def addfolder(request):
+    """Add a new directory."""
     requested_path = request.GET.get('path', None)
     dir_name = request.GET.get('name', None)
     response = {}
@@ -216,6 +219,7 @@ def addfolder(request):
                         mimetype='application/json')
 
 def download(request):
+    """Download a file."""
     requested_path = request.GET.get('path', None)
     real_path = get_path(requested_path)
     filename = os.path.basename(real_path)
@@ -235,6 +239,7 @@ handlers = {
 }
 
 def handle_uploaded_file(path, f):
+    """Handle an uploaded file."""
     real_path = get_path(path)
     new_file = os.path.join(real_path, f.name)
     try:
@@ -247,6 +252,7 @@ def handle_uploaded_file(path, f):
 
 @csrf_exempt
 def filemanager(request):
+    """Connector for Code Five Filemanager."""
     if request.method == 'GET':
         mode = request.GET.get('mode', None)
         if mode is not None:
@@ -258,6 +264,7 @@ def filemanager(request):
 
 @csrf_exempt
 def dir_list(request):
+    """Connector for jquery.filetree."""
     requested_path = urllib.unquote(request.POST.get('dir', None))
     real_path = get_path(requested_path)
     response = ['<ul class="jqueryFileTree" style="display: none;">']
