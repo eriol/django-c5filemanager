@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-
+import os
 import time
 
 from django.test import TestCase
+from django.utils import simplejson
 from mock import Mock, patch
 
+from c5filemanager import settings
 from c5filemanager.views import create_file_info_for
 
 FILE_CTIME = time.mktime(
@@ -110,3 +112,52 @@ class CreateFileInfoTest(TestCase):
                                          real_path='/real/path/to/directory')
 
         self.failUnlessEqual(info, expected_result)
+
+class ViewsTest(TestCase):
+    urls = 'c5filemanager.tests.urls'
+
+    def test_getfolder(self):
+        """Test getfolder."""
+        # ?path=/&mode=getfolder&showThumbs=true
+        response = self.client.get('', {'path': '/',
+                                        'mode': 'getfolder',
+                                        'showThumbs': 'true'})
+        self.failUnlessEqual(response.status_code, 200)
+
+    @patch('shutil.move')
+    @patch('os.path.exists')
+    def test_rename(self, exists_mock, shmove_mock):
+        """Test rename of a file or directory."""
+        exists_mock.return_value = True
+        #?mode=rename&old=/oldfile.txt&new=newfile.txt
+        response = self.client.get('', {'mode': 'rename',
+                                        'old': 'oldfile.txt',
+                                        'new': 'newfile.txt'})
+
+        self.failUnlessEqual(response.status_code, 200)
+
+        expected_content = {
+            'Code': 0,
+            'New Path': os.path.join(settings.MEDIA_ROOT,
+                                     settings.C5FILEMANAGER_DIR,
+                                     'newfile.txt'),
+            "Old Path":  os.path.join(settings.MEDIA_ROOT,
+                                      settings.C5FILEMANAGER_DIR,
+                                     'oldfile.txt'),
+            "New Name": "newfile.txt",
+            "Error": "No Error",
+            "Old Name": "oldfile.txt"}
+
+        self.failUnlessEqual(response.content,
+                             simplejson.dumps(expected_content))
+
+        # If the file does't exists an error message is returned.
+        exists_mock.return_value = False
+        response = self.client.get('', {'mode': 'rename',
+                                        'old': 'notexists.txt',
+                                        'new': 'newfile.txt'})
+
+        expected_content = {'Code': -1, 'Error': 'No such file or directory'}
+
+        self.failUnlessEqual(response.content,
+                             simplejson.dumps(expected_content))
