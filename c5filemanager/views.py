@@ -105,9 +105,6 @@ def getinfo(request):
     """Return information about a file."""
     requested_path = request.GET.get('path', None)
     real_path = get_path(requested_path)
-
-    getsize = request.GET.get('getsize', None)
-
     file_info = create_file_info_for(requested_path, real_path)
 
     return HttpResponse(simplejson.dumps(file_info),
@@ -117,7 +114,6 @@ def getfolder(request):
     """Return the collected info about all the files inside a directory."""
     requested_path = request.GET.get('path', None)
     real_path = get_path(requested_path)
-    getsize = request.GET.get('getsize', None)
 
     # An ordered dict to collect info for all the files in the directory
     # pointed by ``path''
