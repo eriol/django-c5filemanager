@@ -116,7 +116,14 @@ class CreateFileInfoTest(TestCase):
 class FilemanagerTestCase(TestCase):
     urls = 'c5filemanager.tests.urls'
 
+    def setUp(self):
+        self.mockify()
+
+
 class ViewsTest(FilemanagerTestCase):
+
+    def mockify(self, mock_hook=Mock()):
+        pass
 
     def test_getfolder(self):
         """Test getfolder."""
@@ -206,46 +213,53 @@ class ViewsTest(FilemanagerTestCase):
         self.failUnlessEqual(response.content,
                              simplejson.dumps(expected_content))
 
-    @patch('c5filemanager.views.handle_uploaded_file')
-    def test_add(self, handle_uploaded_file_mock):
-        """Test upload of a file."""
-        file_mock = Mock()
-        # Return some meaningfull data :)
-        file_mock.read = lambda: '42'
-        file_mock.name = 'newfile.txt'
 
-        response = self.client.post('', {'currentpath': '/' + file_mock.name,
-                                         'newfile': file_mock})
+
+class UploadFileTest(FilemanagerTestCase):
+    """Tests for c5filemanager.views.add."""
+
+    def mockify(self, mock_hook=Mock()):
+
+        @patch('c5filemanager.views.handle_uploaded_file', mock_hook)
+        def patching():
+            self.handle_uploaded_file_mock = mock_hook
+            self.file_mock = Mock()
+            # Return some meaningfull data :)
+            self.file_mock.read = lambda: '42'
+            self.file_mock.name = 'newfile.txt'
+            path = '/' + self.file_mock.name
+            self.response = self.client.post('', {'currentpath': path,
+                                                  'newfile': self.file_mock})
+        patching()
+
+    def test_add_success(self):
+        """Test succesful upload of a file."""
+        self.failUnless(self.handle_uploaded_file_mock.called)
 
         expected_content = {'Code': 0,
                             'Error': 'No Error',
-                            'Name': file_mock.name,
-                            'Path': '/' + file_mock.name }
-
-        self.failUnlessEqual(response.content,
+                            'Name': self.file_mock.name,
+                            'Path': '/' + self.file_mock.name }
+        self.failUnlessEqual(self.response.content,
                              ('<textarea>' + simplejson.dumps(expected_content)
                               + '</textarea>'))
 
-        # Rasing an error during file write.
+    def test_add_fail(self):
+        """Test unsuccesful upload of a file."""
+        handle_uploaded_file_mock = Mock()
         handle_uploaded_file_mock.side_effect = IOError(2, 'No such file!')
-
-        response = self.client.post('', {'currentpath': '/' + file_mock.name,
-                                         'newfile': file_mock})
+        self.mockify(handle_uploaded_file_mock)
 
         expected_content = {'Code': -1, 'Error': 'No such file!'}
-
-        self.failUnlessEqual(response.content,
+        self.failUnlessEqual(self.response.content,
                              ('<textarea>' + simplejson.dumps(expected_content)
                               + '</textarea>'))
+
 
 class AddFolderTest(FilemanagerTestCase):
     """Tests for c5filemanager.views.addfolder."""
 
-    def setUp(self):
-        self.mockify()
-
     def mockify(self, mock_hook=Mock()):
-
         @patch('os.mkdir', mock_hook)
         def patching():
             self.mkdir_mock = mock_hook
@@ -258,6 +272,7 @@ class AddFolderTest(FilemanagerTestCase):
     def test_addfolder_success(self):
         """Test succesful creation of a new directory."""
         self.failUnless(self.mkdir_mock.called)
+
         expected_content = {'Code': 0,
                             'Error': 'No Error',
                             'Name': 'new_directory',
@@ -271,6 +286,7 @@ class AddFolderTest(FilemanagerTestCase):
         mkdir_mock = Mock()
         mkdir_mock.side_effect = OSError(2, 'File exists')
         self.mockify(mkdir_mock)
+
         expected_content = {'Code': -1, 'Error': 'File exists'}
         self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
