@@ -187,8 +187,8 @@ def add(request):
     response = {}
     try:
         handle_uploaded_file(requested_path, new_file)
-    except IOError, e:
-        response = error(e.strerror)
+    except IOError, err:
+        response = error(err.strerror)
     else:
         response['Path'] = requested_path
         response['Name'] = new_file.name
@@ -202,14 +202,17 @@ def addfolder(request):
     requested_path = request.GET.get('path', None)
     dir_name = request.GET.get('name', None)
     response = {}
-
     real_path = get_path(requested_path)
 
-    os.mkdir(os.path.join(real_path, dir_name))
-    response['Code'] = 0
-    response['Error'] = 'No Error'
-    response['Parent'] = requested_path
-    response['Name'] = dir_name
+    try:
+        os.mkdir(os.path.join(real_path, dir_name))
+    except IOError, err:
+        response = error(err.strerror)
+    else:
+        response['Code'] = 0
+        response['Error'] = 'No Error'
+        response['Parent'] = requested_path
+        response['Name'] = dir_name
 
     return HttpResponse(simplejson.dumps(response),
                         mimetype='application/json')
@@ -242,9 +245,10 @@ def handle_uploaded_file(path, f):
         destination = open(new_file, 'wb+')
         for chunk in f.chunks():
             destination.write(chunk)
-        destination.close()
     except IOError:
         raise
+    finally:
+        destination.close()
 
 @csrf_exempt
 def filemanager(request):
