@@ -113,8 +113,10 @@ class CreateFileInfoTest(TestCase):
 
         self.failUnlessEqual(info, expected_result)
 
-class ViewsTest(TestCase):
+class FilemanagerTestCase(TestCase):
     urls = 'c5filemanager.tests.urls'
+
+class ViewsTest(FilemanagerTestCase):
 
     def test_getfolder(self):
         """Test getfolder."""
@@ -236,3 +238,39 @@ class ViewsTest(TestCase):
                              ('<textarea>' + simplejson.dumps(expected_content)
                               + '</textarea>'))
 
+class AddFolderTest(FilemanagerTestCase):
+    """Tests for c5filemanager.views.addfolder."""
+
+    def setUp(self):
+        self.mockify()
+
+    def mockify(self, mock_hook=Mock()):
+
+        @patch('os.mkdir', mock_hook)
+        def patching():
+            self.mkdir_mock = mock_hook
+            #?mode=addfolder&path=/&name=new_directory
+            self.response = self.client.get('', {'mode': 'addfolder',
+                                                 'path': '/',
+                                                 'name': 'new_directory'})
+        patching()
+
+    def test_addfolder_success(self):
+        """Test succesful creation of a new directory."""
+        self.failUnless(self.mkdir_mock.called)
+        expected_content = {'Code': 0,
+                            'Error': 'No Error',
+                            'Name': 'new_directory',
+                            'Parent': '/'}
+        self.failUnlessEqual(self.response.content,
+                             simplejson.dumps(expected_content))
+
+    def test_addfolder_fail(self):
+        """Test unsuccessful creation of a new directory."""
+        # Raise an OSError exception during directory creation.
+        mkdir_mock = Mock()
+        mkdir_mock.side_effect = OSError(2, 'File exists')
+        self.mockify(mkdir_mock)
+        expected_content = {'Code': -1, 'Error': 'File exists'}
+        self.failUnlessEqual(self.response.content,
+                             simplejson.dumps(expected_content))

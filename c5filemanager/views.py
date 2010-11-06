@@ -203,10 +203,9 @@ def addfolder(request):
     dir_name = request.GET.get('name', None)
     response = {}
     real_path = get_path(requested_path)
-
     try:
         os.mkdir(os.path.join(real_path, dir_name))
-    except IOError, err:
+    except OSError, err:
         response = error(err.strerror)
     else:
         response['Code'] = 0
