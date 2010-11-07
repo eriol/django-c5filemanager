@@ -171,55 +171,78 @@ class ViewsTest(FilemanagerTestCase):
         self.failUnlessEqual(response.content,
                              simplejson.dumps(expected_content))
 
-    @patch('os.rmdir')
-    @patch('os.remove')
-    @patch('os.path.isdir')
-    @patch('os.path.exists')
-    def test_delete(self, exists_mock, isdir_mock, remove_mock, rmdir_mock):
-        """Test deletion of a file or directory."""
-        # Test the deletion of a file.
-        #?mode=delete&path=/file-to-be-deleted.txt
-        exists_mock.return_value = True
-        isdir_mock.return_value = False
 
-        response = self.client.get('', {'mode': 'delete',
-                                        'path': '/file-to-be-deleted.txt'})
-        self.failUnless(remove_mock.called)
+class DeleteTest(FilemanagerTestCase):
+    """Tests for c5filemanager.views.delete."""
+
+    def setUp(self):
+        self.exists_mock = Mock()
+        self.isdir_mock = Mock()
+        self.remove_mock = Mock()
+        self.rmdir_mock = Mock()
+
+    def mockify(self, exists_mock=Mock(), isdir_mock=Mock(),
+                remove_mock=Mock(), rmdir_mock=Mock(), path=None):
+        @patch('os.rmdir', rmdir_mock)
+        @patch('os.remove', remove_mock)
+        @patch('os.path.isdir', isdir_mock)
+        @patch('os.path.exists', exists_mock)
+        def patching():
+            query = {'mode': 'delete', 'path': path}
+            self.response = self.client.get('', query)
+        patching()
+
+    def test_delete_file_success(self):
+        """Test succesful deletion of a file."""
+        self.exists_mock.return_value = True
+        self.isdir_mock.return_value = False
+        self.mockify(exists_mock=self.exists_mock,
+                     isdir_mock=self.isdir_mock,
+                     remove_mock=self.remove_mock,
+                     path='/file-to-be-deleted.txt')
+
+        self.failUnless(self.exists_mock.called)
+        self.failUnless(self.remove_mock.called)
+
         expected_content = {'Code': 0,
                             'Error': 'No Error',
                             'Path': '/file-to-be-deleted.txt'}
-        self.failUnlessEqual(response.content,
+        self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
 
-        # Test the deletion of a directory.
-        #?mode=delete&path=/directory-to-be-deleted/
-        response = self.client.get('', {'mode': 'delete',
-                                        'path': '/directory-to-be-deleted/'})
-        exists_mock.return_value = True
-        isdir_mock.return_value = True
-        self.failUnless(isdir_mock.called)
+    def test_delete_directory_success(self):
+        """Test succesful deletion of a directory."""
+        self.exists_mock.return_value = True
+        self.isdir_mock.return_value = True
+        self.mockify(exists_mock=self.exists_mock,
+                     isdir_mock=self.isdir_mock,
+                     rmdir_mock=self.rmdir_mock,
+                     path='/directory-to-be-deleted/')
+
+        self.failUnless(self.exists_mock.called)
+        self.failUnless(self.rmdir_mock.called)
+
         expected_content = {'Code': 0,
                             'Error': 'No Error',
                             'Path': '/directory-to-be-deleted/'}
-        self.failUnlessEqual(response.content,
+        self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
 
-        # If file or directory does't exists an error message is returned.
-        exists_mock.return_value = False
-        response = self.client.get('', {'mode': 'delete',
-                                        'path': '/nofile-to-be-deleted.txt'})
+    def test_delete_file_or_directory_not_existent(self):
+        """Test deletion of a not existent file or directory."""
+        self.exists_mock.return_value = False
+        self.mockify(exists_mock=self.exists_mock,
+                     path='/nofile-or-directory-to-be-deleted')
 
         expected_content = {'Code': -1, 'Error': 'No such file or directory'}
-        self.failUnlessEqual(response.content,
+        self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
-
 
 
 class UploadFileTest(FilemanagerTestCase):
     """Tests for c5filemanager.views.add."""
 
     def mockify(self, mock_hook=Mock()):
-
         @patch('c5filemanager.views.handle_uploaded_file', mock_hook)
         def patching():
             self.handle_uploaded_file_mock = mock_hook
