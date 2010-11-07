@@ -36,7 +36,7 @@ def get_path(requested_path):
                         settings.C5FILEMANAGER_DIR,
                         requested_path)
 
-def create_file_info_for(requested_path, real_path):
+def create_file_info_for(requested_path, real_path, show_thumbs=True):
     """Fill proper file information needed by Code Five Filemanager."""
     file_info = {
         'Path': '',
@@ -86,9 +86,10 @@ def create_file_info_for(requested_path, real_path):
             width, height = img.size
             file_info['Properties']['Height'] = height
             file_info['Properties']['Width'] = width
-            preview = ''.join((settings.MEDIA_URL,
-                               settings.C5FILEMANAGER_DIR,
-                               requested_path))
+            if show_thumbs:
+                preview = ''.join((settings.MEDIA_URL,
+                                settings.C5FILEMANAGER_DIR,
+                                requested_path))
         file_info['Preview'] = preview
         file_info['Properties']['Size'] = os.path.getsize(real_path)
     else:
@@ -104,6 +105,7 @@ def error(message, code=-1):
 def getinfo(request):
     """Return information about a file."""
     requested_path = request.GET.get('path', None)
+
     real_path = get_path(requested_path)
     file_info = create_file_info_for(requested_path, real_path)
 
@@ -113,8 +115,9 @@ def getinfo(request):
 def getfolder(request):
     """Return the collected info about all the files inside a directory."""
     requested_path = request.GET.get('path', None)
-    real_path = get_path(requested_path)
+    show_thumbs = simplejson.loads(request.GET.get('showThumbs', 'null'))
 
+    real_path = get_path(requested_path)
     # An ordered dict to collect info for all the files in the directory
     # pointed by ``path''
     files_info = OrderedDict()
@@ -122,9 +125,9 @@ def getfolder(request):
         for filename in sorted(os.listdir(real_path), key=unicode.lower):
             requested_file_path = os.path.join(requested_path, filename)
             real_file_path = os.path.join(real_path, filename)
-            files_info[filename] = create_file_info_for(
-                                        requested_file_path,
-                                        real_file_path)
+            files_info[filename] = create_file_info_for(requested_file_path,
+                                                        real_file_path,
+                                                        show_thumbs)
     else:
         files_info = error('No such directory')
 
