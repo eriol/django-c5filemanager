@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django.utils import simplejson
 # For OrderedDict is needed simplejson >= 2.1.0
 from django.utils.simplejson import OrderedDict
+from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 
 from c5filemanager import settings
@@ -115,7 +116,7 @@ def create_file_info_for(requested_path, real_path, show_thumbs=True):
         file_info['Preview'] = preview
         file_info['Properties']['Size'] = os.path.getsize(real_path)
     else:
-        return error('No such file or directory')
+        return error(_('No such file or directory.'))
 
     return file_info
 
@@ -141,7 +142,6 @@ def getfolder(request):
 
     real_path = get_path(requested_path)
 
-
     # An ordered dict to collect info for all the files in the directory
     # pointed by ``path''
     files_info = OrderedDict()
@@ -153,7 +153,8 @@ def getfolder(request):
                                                         real_file_path,
                                                         show_thumbs)
     else:
-        files_info = error('No such directory')
+        files_info = error(
+            _('Directory %(path)s does not exist.') % {'path': requested_path})
 
     return HttpResponse(simplejson.dumps(files_info),
                         mimetype='application/json')
@@ -182,7 +183,7 @@ def rename(request):
         response['New Path'] = new_file
         response['New Name'] = new_name
     else:
-        response = error('No such file or directory')
+        response = error(_('No such file or directory.'))
 
     return HttpResponse(simplejson.dumps(response),
                         mimetype='application/json')
@@ -202,7 +203,7 @@ def delete(request):
         response['Error'] = 'No Error'
         response['Path'] = requested_path
     else:
-        response = error('No such file or directory')
+        response = error(_('No such file or directory.'))
 
     return HttpResponse(simplejson.dumps(response),
                         mimetype='application/json')
@@ -215,7 +216,7 @@ def add(request):
     try:
         handle_uploaded_file(requested_path, new_file)
     except IOError, err:
-        response = error(err.strerror)
+        response = error(_(err.strerror))
     else:
         response['Path'] = requested_path
         response['Name'] = new_file.name
