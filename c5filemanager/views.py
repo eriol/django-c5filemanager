@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import posixpath
 import shutil
 import time
 import urllib
@@ -15,7 +16,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from c5filemanager import settings
 
-
+C5FILEMANAGER_UPLOAD_DIR_URL = posixpath.join(settings.MEDIA_URL,
+                                              settings.C5FILEMANAGER_DIR)
 IMAGES_EXT = ('jpg', 'jpeg', 'gif', 'png')
 PREVIEW_IMAGES_PATH = 'images/fileicons/'
 PREVIEW_IMAGES = {
@@ -26,15 +28,36 @@ PREVIEW_IMAGES = {
 
 TIME_FORMAT = '%Y/%m/%d - %H:%M:%S'
 
+def norm_path_list(path):
+    """Normalize the path and return a list of each part."""
+    path = posixpath.normpath(urllib.unquote(path))
+    path = path.lstrip('/')
+    return path.split('/')
+
 def get_path(requested_path):
-    """Make the passed path relative to settings.MEDIA_ROOT."""
-    # Clean absolute path that will brake os.path.join!
-    if os.path.isabs(requested_path):
-        requested_path = requested_path[1:]
+    """Return the real path of a file (or directory) inside MEDIA_ROOT."""
+
+    def _clean_equal(element1, element2):
+        """
+        Return an empty string if the passed elements are equal, the second one
+        if the first is None.
+
+        It's used with the map() below to clean requested_path deleting those
+        parts of the splitted URL that belong to C5FILEMANAGER_UPLOAD_DIR_URL.
+        """
+        if element1 == element2:
+            return ''
+        if element1 is None and element2:
+            return element2
+
+    new_path = '/'.join(map(_clean_equal,
+                    norm_path_list(C5FILEMANAGER_UPLOAD_DIR_URL),
+                    norm_path_list(requested_path)))
+    new_path = new_path.lstrip('/')
 
     return os.path.join(settings.MEDIA_ROOT,
                         settings.C5FILEMANAGER_DIR,
-                        requested_path)
+                        new_path)
 
 def create_file_info_for(requested_path, real_path, show_thumbs=True):
     """Fill proper file information needed by Code Five Filemanager."""
@@ -87,9 +110,7 @@ def create_file_info_for(requested_path, real_path, show_thumbs=True):
             file_info['Properties']['Height'] = height
             file_info['Properties']['Width'] = width
             if show_thumbs:
-                preview = ''.join((settings.MEDIA_URL,
-                                settings.C5FILEMANAGER_DIR,
-                                requested_path))
+                preview = requested_path
         file_info['Preview'] = preview
         file_info['Properties']['Size'] = os.path.getsize(real_path)
     else:
@@ -118,11 +139,13 @@ def getfolder(request):
     show_thumbs = simplejson.loads(request.GET.get('showThumbs', 'null'))
 
     real_path = get_path(requested_path)
+
+
     # An ordered dict to collect info for all the files in the directory
     # pointed by ``path''
     files_info = OrderedDict()
     if os.path.isdir(real_path):
-        for filename in sorted(os.listdir(real_path), key=unicode.lower):
+        for filename in sorted(os.listdir(real_path)):
             requested_file_path = os.path.join(requested_path, filename)
             real_file_path = os.path.join(real_path, filename)
             files_info[filename] = create_file_info_for(requested_file_path,
@@ -274,7 +297,7 @@ def dir_list(request):
                 '<a href="#" rel="%s/">%s</a></li>')
     file_item = '<li class="file ext_%s"><a href="#" rel="%s">%s</a></li>'
     if os.path.isdir(real_path):
-        for filename in sorted(os.listdir(real_path), key=unicode.lower):
+        for filename in sorted(os.listdir(real_path)):
             ext = os.path.splitext(filename)[1][1:].lower()
             full_requested_path = os.path.join(requested_path, filename)
             full_real_path = os.path.join(real_path, filename)

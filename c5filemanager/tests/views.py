@@ -17,9 +17,13 @@ FILE_SIZE = 1024
 IMG_HEIGHT = 768
 IMG_WIDTH = 1024
 
-# An image mock to test size
+# An image mock object to test size
 ImageMock = Mock()
 ImageMock.size = IMG_WIDTH, IMG_HEIGHT
+# Override settings for testing.
+settings.MEDIA_ROOT = '/path/to/media/root/'
+settings.C5FILEMANAGER_DIR = 'upload/'
+
 
 @patch('Image.open')
 @patch('os.path.getsize')
@@ -76,7 +80,7 @@ class CreateFileInfoTest(TestCase):
             'File Type': 'png',
             'Filename': 'file.png',
             'Path': '/path/to/file.png',
-            'Preview': '/media/upload/path/to/file.png',
+            'Preview': '/path/to/file.png',
             'Properties': {'Date Created': '1982/02/08 - 10:10:10',
                            'Date Modified': '2000/02/08 - 10:10:10',
                            'Height': 768,
@@ -131,7 +135,7 @@ class GetFolderTest(FilemanagerTestCase):
     def test_getfolder_success(self):
         """Test succesful retrieving of a directory."""
         # ?path=/&mode=getfolder&showThumbs=true
-        response = self.client.get('', {'path': '/',
+        response = self.client.get('', {'path': '/static/upload/',
                                         'mode': 'getfolder',
                                         'showThumbs': 'true'})
         self.failUnlessEqual(response.status_code, 200)
@@ -147,13 +151,13 @@ class RenameTest(FilemanagerTestCase):
         self.mockify(exists_mock=self.exists_mock, move_mock=self.move_mock)
 
     def mockify(self, exists_mock=Mock(), move_mock=Mock()):
-        @patch('shutil.move', move_mock)
         @patch('os.path.exists', exists_mock)
+        @patch('shutil.move', move_mock)
         def patching():
             #?mode=addfolder&path=/&name=new_directory
             self.response = self.client.get('', {'mode': 'rename',
-                                                 'old': 'oldfile.txt',
-                                                 'new': 'newfile.txt'})
+                 'old': '/static/upload/oldfile.txt',
+                 'new': '/static/upload/newfile.txt'})
         patching()
 
     def test_rename_success(self):
@@ -216,7 +220,7 @@ class DeleteTest(FilemanagerTestCase):
         self.mockify(exists_mock=self.exists_mock,
                      isdir_mock=self.isdir_mock,
                      remove_mock=self.remove_mock,
-                     path='/file-to-be-deleted.txt')
+                     path='/static/upload/file-to-be-deleted.txt')
 
         self.failUnlessEqual(self.response.status_code, 200)
         self.failUnless(self.exists_mock.called)
@@ -224,7 +228,7 @@ class DeleteTest(FilemanagerTestCase):
 
         expected_content = {'Code': 0,
                             'Error': 'No Error',
-                            'Path': '/file-to-be-deleted.txt'}
+                            'Path': '/static/upload/file-to-be-deleted.txt'}
         self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
 
@@ -235,7 +239,7 @@ class DeleteTest(FilemanagerTestCase):
         self.mockify(exists_mock=self.exists_mock,
                      isdir_mock=self.isdir_mock,
                      rmdir_mock=self.rmdir_mock,
-                     path='/directory-to-be-deleted/')
+                     path='/static/upload/directory-to-be-deleted/')
 
         self.failUnlessEqual(self.response.status_code, 200)
         self.failUnless(self.exists_mock.called)
@@ -243,7 +247,7 @@ class DeleteTest(FilemanagerTestCase):
 
         expected_content = {'Code': 0,
                             'Error': 'No Error',
-                            'Path': '/directory-to-be-deleted/'}
+                            'Path': '/static/upload/directory-to-be-deleted/'}
         self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
 
@@ -251,7 +255,7 @@ class DeleteTest(FilemanagerTestCase):
         """Test deletion of a not existent file or directory."""
         self.exists_mock.return_value = False
         self.mockify(exists_mock=self.exists_mock,
-                     path='/nofile-or-directory-to-be-deleted')
+                     path='/static/upload/nofile-or-directory-to-be-deleted')
 
         self.failUnlessEqual(self.response.status_code, 200)
 
@@ -312,7 +316,7 @@ class AddFolderTest(FilemanagerTestCase):
             self.mkdir_mock = mock_hook
             #?mode=addfolder&path=/&name=new_directory
             self.response = self.client.get('', {'mode': 'addfolder',
-                                                 'path': '/',
+                                                 'path': '/static/upload/new/',
                                                  'name': 'new_directory'})
         patching()
 
@@ -324,7 +328,7 @@ class AddFolderTest(FilemanagerTestCase):
         expected_content = {'Code': 0,
                             'Error': 'No Error',
                             'Name': 'new_directory',
-                            'Parent': '/'}
+                            'Parent': '/static/upload/new/'}
         self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
 
