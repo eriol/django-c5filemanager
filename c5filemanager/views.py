@@ -7,6 +7,7 @@ import urllib
 
 import Image
 
+from django.contrib.admin.views.decorators import staff_member_required
 from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse
 from django.utils import simplejson
@@ -276,6 +277,7 @@ def handle_uploaded_file(path, f):
         destination.close()
 
 @csrf_exempt
+@staff_member_required
 def filemanager(request):
     """Connector for Code Five Filemanager."""
     if request.method == 'GET':
@@ -288,6 +290,7 @@ def filemanager(request):
     return callback(request)
 
 @csrf_exempt
+@staff_member_required
 def dir_list(request):
     """Connector for jquery.filetree."""
     requested_path = urllib.unquote(request.POST.get('dir', None))
