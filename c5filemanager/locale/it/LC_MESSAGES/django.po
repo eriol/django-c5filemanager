@@ -1,0 +1,28 @@
+# C5Filemanager Italian l18n.
+# Copyright (C) 2010 Daniele Tricoli
+# This file is distributed under the same license as the PACKAGE package.
+# Daniele Tricoli <eriol@mornie.org>, 2010.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: c5filemanager\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-11-09 14:23+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Daniele Tricoli <eriol@mornie.org>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+
+#: views.py:119 views.py:186 views.py:206
+msgid "No such file or directory."
+msgstr "Nessun file o directory."
+
+#: views.py:157
+#, python-format
+msgid "Directory %(path)s does not exist."
+msgstr "La directory %(path)s non esiste."
