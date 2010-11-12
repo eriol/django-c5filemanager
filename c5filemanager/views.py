@@ -175,13 +175,17 @@ def rename(request):
         # will be stripped.
         new_name = os.path.basename(new_path)
         new_file = os.path.join(old_path_dir, new_name)
-        shutil.move(old_file, os.path.join(old_path_dir, new_name))
-        response['Code'] = 0
-        response['Error'] = 'No Error'
-        response['Old Path'] = old_file
-        response['Old Name'] = old_name
-        response['New Path'] = new_file
-        response['New Name'] = new_name
+        try:
+            shutil.move(old_file, os.path.join(old_path_dir, new_name))
+        except:
+            response = error(_('Can\'t rename %(name)s.') % {'name': old_name})
+        else:
+            response['Code'] = 0
+            response['Error'] = 'No Error'
+            response['Old Path'] = old_file
+            response['Old Name'] = old_name
+            response['New Path'] = new_file
+            response['New Name'] = new_name
     else:
         response = error(_('No such file or directory.'))
 
@@ -195,13 +199,18 @@ def delete(request):
     response = {}
 
     if os.path.exists(file_to_be_deleted):
-        if os.path.isdir(file_to_be_deleted):
-            os.rmdir(file_to_be_deleted)
+        try:
+            if os.path.isdir(file_to_be_deleted):
+                os.rmdir(file_to_be_deleted)
+            else:
+                os.remove(file_to_be_deleted)
+        except:
+            response = error(
+                _('Can\'t delete %(path)s.') % {'path': requested_path})
         else:
-            os.remove(file_to_be_deleted)
-        response['Code'] = 0
-        response['Error'] = 'No Error'
-        response['Path'] = requested_path
+            response['Code'] = 0
+            response['Error'] = 'No Error'
+            response['Path'] = requested_path
     else:
         response = error(_('No such file or directory.'))
 
@@ -215,8 +224,8 @@ def add(request):
     response = {}
     try:
         handle_uploaded_file(requested_path, new_file)
-    except IOError, err:
-        response = error(_(err.strerror))
+    except:
+        response = error(_('Can\'t add %(file)s.') % {'file': new_file.name})
     else:
         response['Path'] = requested_path
         response['Name'] = new_file.name
@@ -233,8 +242,9 @@ def addfolder(request):
     real_path = get_path(requested_path)
     try:
         os.mkdir(os.path.join(real_path, dir_name))
-    except OSError, err:
-        response = error(err.strerror)
+    except:
+        response = error(
+            _('Can\'t create %(path)s.') % {'path': requested_path})
     else:
         response['Code'] = 0
         response['Error'] = 'No Error'
