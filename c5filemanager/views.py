@@ -243,8 +243,9 @@ def addfolder(request):
     try:
         os.mkdir(os.path.join(real_path, dir_name))
     except:
+        path = os.path.join(requested_path, dir_name)
         response = error(
-            _('Can\'t create %(path)s.') % {'path': requested_path})
+            _('Can\'t create %(path)s.') % {'path': path})
     else:
         response['Code'] = 0
         response['Error'] = 'No Error'
