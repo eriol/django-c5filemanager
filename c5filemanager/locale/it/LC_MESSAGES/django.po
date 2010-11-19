@@ -1,4 +1,4 @@
-# C5Filemanager Italian l18n.
+# django-c5filemanager Italian l18n.
 # Copyright (C) 2010 Daniele Tricoli
 # This file is distributed under the same license as the PACKAGE package.
 # Daniele Tricoli <eriol@mornie.org>, 2010.
@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: c5filemanager\n"
+"Project-Id-Version: django-c5filemanager\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-11-11 03:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
