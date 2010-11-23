@@ -15,4 +15,7 @@ setup(
             'locale/*/LC_MESSAGES/*',
         ],
     },
+    install_requires = [
+        'simplejson>=2.1.0',
+    ],
 )
