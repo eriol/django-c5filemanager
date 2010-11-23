@@ -187,7 +187,7 @@ class RenameTest(FilemanagerTestCase):
         self.exists_mock.return_value = False
         self.mockify(exists_mock=self.exists_mock)
 
-        expected_content = {'Code': -1, 'Error': 'No such file or directory'}
+        expected_content = {'Code': -1, 'Error': 'No such file or directory.'}
         self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
 
@@ -259,7 +259,7 @@ class DeleteTest(FilemanagerTestCase):
 
         self.failUnlessEqual(self.response.status_code, 200)
 
-        expected_content = {'Code': -1, 'Error': 'No such file or directory'}
+        expected_content = {'Code': -1, 'Error': 'No such file or directory.'}
         self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
 
@@ -301,7 +301,7 @@ class UploadFileTest(FilemanagerTestCase):
         handle_uploaded_file_mock.side_effect = IOError(2, 'No such file!')
         self.mockify(handle_uploaded_file_mock)
 
-        expected_content = {'Code': -1, 'Error': 'No such file!'}
+        expected_content = {'Code': -1, 'Error': 'Can\'t add newfile.txt.'}
         self.failUnlessEqual(self.response.content,
                              ('<textarea>' + simplejson.dumps(expected_content)
                               + '</textarea>'))
@@ -341,6 +341,8 @@ class AddFolderTest(FilemanagerTestCase):
         mkdir_mock.side_effect = OSError(2, 'File exists')
         self.mockify(mkdir_mock)
 
-        expected_content = {'Code': -1, 'Error': 'File exists'}
+        expected_content = {'Code': -1,
+                            'Error': 'Can\'t create '
+                                     '/static/upload/new/new_directory.'}
         self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
