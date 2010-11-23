@@ -2,6 +2,7 @@
 import os
 import time
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import simplejson
 from mock import Mock, patch
@@ -122,9 +123,17 @@ class CreateFileInfoTest(TestCase):
 class FilemanagerTestCase(TestCase):
     urls = 'c5filemanager.tests.urls'
 
-    def setUp(self):
-        self.mockify()
+    def setUp(self, auto_mockify=True):
+        self.user = User.objects.create_superuser('eriol',
+                                                  'eriol@mornie.org',
+                                                  'secret')
+        self.client.login(username='eriol', password='secret')
 
+        if auto_mockify:
+            self.mockify()
+
+    def tearDown(self):
+        self.user.delete()
 
 class GetFolderTest(FilemanagerTestCase):
     """Tests for c5filemanager.views.getfolder"""
@@ -145,6 +154,7 @@ class RenameTest(FilemanagerTestCase):
     """Tests for c5filemanager.views.rename"""
 
     def setUp(self):
+        super(RenameTest, self).setUp(auto_mockify=False)
         self.exists_mock = Mock()
         self.exists_mock.return_value = True
         self.move_mock = Mock()
@@ -196,6 +206,7 @@ class DeleteTest(FilemanagerTestCase):
     """Tests for c5filemanager.views.delete"""
 
     def setUp(self):
+        super(DeleteTest, self).setUp(auto_mockify=False)
         self.exists_mock = Mock()
         self.isdir_mock = Mock()
         self.remove_mock = Mock()
