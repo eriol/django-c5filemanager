@@ -182,7 +182,8 @@ How to use the filemanager in Django admin site
 You can put a link to the filemanager index using
 `django-admin-tools <http://www.bitbucket.org/izi/django-admin-tools/>`_.
 
-The filemanager index will be at ``/MEDIA_URL/filemanager/index.html``
+The filemanager index will be at ``/MEDIA_URL/C5FILEMANAGER_MEDIA/index.html``,
+see :ref:`available_settings` for details.
 
 Assuming you are following this document your link might be::
 

@@ -1,3 +1,5 @@
+.. _available_settings:
+
 Available Settings
 ==================
 
