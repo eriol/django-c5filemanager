@@ -18,8 +18,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from c5filemanager import settings
 
-C5FILEMANAGER_UPLOAD_DIR_URL = posixpath.join(settings.MEDIA_URL,
-                                              settings.C5FILEMANAGER_DIR)
 IMAGES_EXT = ('jpg', 'jpeg', 'gif', 'png')
 PREVIEW_IMAGES_PATH = 'images/fileicons/'
 PREVIEW_IMAGES = {
@@ -45,7 +43,7 @@ def get_path(requested_path):
         if the first is None.
 
         It's used with the map() below to clean requested_path deleting those
-        parts of the splitted URL that belong to C5FILEMANAGER_UPLOAD_DIR_URL.
+        parts of the splitted URL that belong to settings.UPLOAD_DIRECTORY_URL.
         """
         if element1 == element2:
             return ''
@@ -53,12 +51,12 @@ def get_path(requested_path):
             return element2
 
     new_path = '/'.join(map(_clean_equal,
-                    norm_path_list(C5FILEMANAGER_UPLOAD_DIR_URL),
+                    norm_path_list(settings.UPLOAD_DIRECTORY_URL),
                     norm_path_list(requested_path)))
     new_path = new_path.lstrip('/')
 
     return os.path.join(settings.MEDIA_ROOT,
-                        settings.C5FILEMANAGER_DIR,
+                        settings.UPLOAD_DIRECTORY,
                         new_path)
 
 def create_file_info_for(requested_path, real_path, show_thumbs=True):
