@@ -6,13 +6,14 @@
 django-c5filemanager
 ====================
 
-``django-c5filemanager`` is a Django connector for the Code Five Filemanager.
+``django-c5filemanager`` is a Django connector for the Core Five Filemanager.
 
 
 .. toctree::
    :maxdepth: 3
 
    getting_started
+   available_settings
    licensing
 
 
