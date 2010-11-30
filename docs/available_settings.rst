@@ -30,4 +30,4 @@ Path of the django-c5filemanager upload directory::
     UPLOAD_DIRECTORY = getattr(settings, 'C5FILEMANAGER_UPLOAD_DIRECTORY', 'upload')
 
 .. important::
-    Specified path must be relative to MEDIA_ROOT.
+    Specified path will be *always* relative to MEDIA_ROOT.
