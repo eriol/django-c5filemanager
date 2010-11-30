@@ -1,0 +1,9 @@
+django-c5filemanager
+====================
+
+django-c5filemanager is a Django connector for Core Five Filemanager.
+
+For more info see the documentation in the ``docs`` directory or `browse it
+online <http://docs.mornie.org/django-c5filemanager>`_.
+
+Thanks for downloading django-c5filemanager.
