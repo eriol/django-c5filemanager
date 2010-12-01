@@ -83,11 +83,9 @@ Download
 
 You can use ``git``::
 
-    git clone http://github.com/simogeo/Filemanager.git
+    $ git clone http://github.com/simogeo/Filemanager.git
 
 Or the download page of GitHub: http://github.com/simogeo/Filemanager/archives/master
-
-At the time of this writing last revision is ``a512ff27e39d45a293735b140cf7b11385cbd4ba``.
 
 Install
 ~~~~~~~
