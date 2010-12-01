@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+"""c5filemanager.urls module, custom URLs for django-c5filemanager.
+
+THIS SOFTWARE IS UNDER BSD LICENSE.
+Copyright (c) 2010 Daniele Tricoli <eriol@mornie.org>
+
+Read LICENSE for more informations.
+"""
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('c5filemanager.views',

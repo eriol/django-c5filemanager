@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-These URLs are used in unit tests for django-c5filemanager
+"""c5filemanager.tests.urls module, URLs used for unit tests of
+django-c5filemanager.
+
+THIS SOFTWARE IS UNDER BSD LICENSE.
+Copyright (c) 2010 Daniele Tricoli <eriol@mornie.org>
+
+Read LICENSE for more informations.
 """
 from django.conf.urls.defaults import *
 

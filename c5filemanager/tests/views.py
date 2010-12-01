@@ -1,4 +1,11 @@
 # -*- coding: utf-8 -*-
+"""c5filemanager.tests.views module, tests for c5filemanager.views module.
+
+THIS SOFTWARE IS UNDER BSD LICENSE.
+Copyright (c) 2010 Daniele Tricoli <eriol@mornie.org>
+
+Read LICENSE for more informations.
+"""
 import os
 import time
 
