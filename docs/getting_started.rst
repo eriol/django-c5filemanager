@@ -26,6 +26,10 @@ you have to do::
 
     $ pip install -e http://hg.mornie.org/django/c5filemanager/@0.1#egg=django-c5filemanager
 
+Or from the packaged version::
+
+    $ pip install http//downloads.mornie.org/django-c5filemanager/django-c5filemanager-0.1.tar.gz
+
 Manual installation
 ~~~~~~~~~~~~~~~~~~~
 
