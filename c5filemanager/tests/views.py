@@ -23,7 +23,7 @@ ImageMock = Mock()
 ImageMock.size = IMG_WIDTH, IMG_HEIGHT
 # Override settings for testing.
 settings.MEDIA_ROOT = '/path/to/media/root/'
-settings.C5FILEMANAGER_DIR = 'upload/'
+settings.UPLOAD_DIRECTORY = 'upload/'
 
 
 @patch('Image.open')
@@ -178,10 +178,10 @@ class RenameTest(FilemanagerTestCase):
         expected_content = {
             'Code': 0,
             'New Path': os.path.join(settings.MEDIA_ROOT,
-                                     settings.C5FILEMANAGER_DIR,
+                                     settings.UPLOAD_DIRECTORY,
                                      'newfile.txt'),
             'Old Path':  os.path.join(settings.MEDIA_ROOT,
-                                      settings.C5FILEMANAGER_DIR,
+                                      settings.UPLOAD_DIRECTORY,
                                      'oldfile.txt'),
             'New Name': 'newfile.txt',
             'Error': 'No Error',
