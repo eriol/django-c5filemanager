@@ -10,13 +10,17 @@ from setuptools import setup, find_packages
 
 from c5filemanager import get_version
 
+def read(filename):
+    """Small tool function to read README."""
+    return open(os.path.join(os.path.dirname(__file__), filename)).read()
+
 download_page = 'http://downloads.mornie.org/django-c5filemanager/'
 
 setup(
     name='django-c5filemanager',
     version=get_version(),
     description='Django connector for Core Five Filemanager.',
-    long_description=open('README').read(),
+    long_description=read('README'),
     author='Daniele Tricoli',
     author_email='eriol@mornie.org',
     url='http://mornie.org/projects/django-c5filemanager/'
