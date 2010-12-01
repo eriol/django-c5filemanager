@@ -15,6 +15,7 @@ django-c5filemanager
    getting_started
    available_settings
    ckeditor_integration
+   changelog
    licensing
 
 
