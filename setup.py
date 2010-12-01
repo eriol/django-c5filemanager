@@ -6,6 +6,8 @@ Copyright (c) 2010 Daniele Tricoli <eriol@mornie.org>
 
 Read LICENSE for more informations.
 """
+import os
+
 from setuptools import setup, find_packages
 
 from c5filemanager import get_version
@@ -23,9 +25,9 @@ setup(
     long_description=read('README'),
     author='Daniele Tricoli',
     author_email='eriol@mornie.org',
-    url='http://mornie.org/projects/django-c5filemanager/'
+    url='http://mornie.org/projects/django-c5filemanager/',
     download_url='%sdjango-c5filemanager-%s.tar.gz' % (download_page,
-                                                       get_version())
+                                                       get_version()),
     packages=find_packages(),
     package_data = {
         'c5filemanager': [
