@@ -109,7 +109,7 @@ class CreateFileInfoTest(TestCase):
         expected_result = {
             'Code': 0,
             'Error': '',
-            'File Type': 'Directory',
+            'File Type': 'dir',
             'Filename': 'directory',
             'Path': '/path/to/directory/',
             'Preview': 'images/fileicons/_Open.png',
@@ -151,7 +151,7 @@ class GetFolderTest(FilemanagerTestCase):
     def test_getfolder_success(self):
         """Test succesful retrieving of a directory."""
         # ?path=/&mode=getfolder&showThumbs=true
-        response = self.client.get('', {'path': '/static/upload/',
+        response = self.client.get('', {'path': '/media/upload/',
                                         'mode': 'getfolder',
                                         'showThumbs': 'true'})
         self.failUnlessEqual(response.status_code, 200)
@@ -173,8 +173,8 @@ class RenameTest(FilemanagerTestCase):
         def patching():
             #?mode=addfolder&path=/&name=new_directory
             self.response = self.client.get('', {'mode': 'rename',
-                 'old': '/static/upload/oldfile.txt',
-                 'new': '/static/upload/newfile.txt'})
+                 'old': '/media/upload/oldfile.txt',
+                 'new': '/media/upload/newfile.txt'})
         patching()
 
     def test_rename_success(self):
@@ -238,7 +238,7 @@ class DeleteTest(FilemanagerTestCase):
         self.mockify(exists_mock=self.exists_mock,
                      isdir_mock=self.isdir_mock,
                      remove_mock=self.remove_mock,
-                     path='/static/upload/file-to-be-deleted.txt')
+                     path='/media/upload/file-to-be-deleted.txt')
 
         self.failUnlessEqual(self.response.status_code, 200)
         self.failUnless(self.exists_mock.called)
@@ -246,7 +246,7 @@ class DeleteTest(FilemanagerTestCase):
 
         expected_content = {'Code': 0,
                             'Error': 'No Error',
-                            'Path': '/static/upload/file-to-be-deleted.txt'}
+                            'Path': '/media/upload/file-to-be-deleted.txt'}
         self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
 
@@ -257,7 +257,7 @@ class DeleteTest(FilemanagerTestCase):
         self.mockify(exists_mock=self.exists_mock,
                      isdir_mock=self.isdir_mock,
                      rmdir_mock=self.rmdir_mock,
-                     path='/static/upload/directory-to-be-deleted/')
+                     path='/media/upload/directory-to-be-deleted/')
 
         self.failUnlessEqual(self.response.status_code, 200)
         self.failUnless(self.exists_mock.called)
@@ -265,7 +265,7 @@ class DeleteTest(FilemanagerTestCase):
 
         expected_content = {'Code': 0,
                             'Error': 'No Error',
-                            'Path': '/static/upload/directory-to-be-deleted/'}
+                            'Path': '/media/upload/directory-to-be-deleted/'}
         self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
 
@@ -273,7 +273,7 @@ class DeleteTest(FilemanagerTestCase):
         """Test deletion of a not existent file or directory."""
         self.exists_mock.return_value = False
         self.mockify(exists_mock=self.exists_mock,
-                     path='/static/upload/nofile-or-directory-to-be-deleted')
+                     path='/media/upload/nofile-or-directory-to-be-deleted')
 
         self.failUnlessEqual(self.response.status_code, 200)
 
@@ -334,7 +334,7 @@ class AddFolderTest(FilemanagerTestCase):
             self.mkdir_mock = mock_hook
             #?mode=addfolder&path=/&name=new_directory
             self.response = self.client.get('', {'mode': 'addfolder',
-                                                 'path': '/static/upload/new/',
+                                                 'path': '/media/upload/new/',
                                                  'name': 'new_directory'})
         patching()
 
@@ -346,7 +346,7 @@ class AddFolderTest(FilemanagerTestCase):
         expected_content = {'Code': 0,
                             'Error': 'No Error',
                             'Name': 'new_directory',
-                            'Parent': '/static/upload/new/'}
+                            'Parent': '/media/upload/new/'}
         self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
 
@@ -361,6 +361,6 @@ class AddFolderTest(FilemanagerTestCase):
 
         expected_content = {'Code': -1,
                             'Error': 'Can\'t create '
-                                     '/static/upload/new/new_directory.'}
+                                     '/media/upload/new/new_directory.'}
         self.failUnlessEqual(self.response.content,
                              simplejson.dumps(expected_content))
