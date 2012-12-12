@@ -90,7 +90,7 @@ def create_file_info_for(requested_path, real_path, show_thumbs=True):
         # Handle file extension: if ``path'' is a directory must be set to
         # 'dir', if absent or unknown to 'txt'.
         if os.path.isdir(real_path):
-            ext = 'Directory'
+            ext = 'dir'
             file_info['Path'] = file_info['Path'] + '/'
             preview = PREVIEW_IMAGES['Directory']
         else:
