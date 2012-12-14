@@ -305,27 +305,3 @@ def filemanager(request):
         return add(request)
 
     return callback(request)
-
-@csrf_exempt
-@staff_member_required
-def dir_list(request):
-    """Connector for jquery.filetree."""
-    requested_path = urllib.unquote(request.POST.get('dir', None))
-    real_path = get_path(requested_path)
-    response = ['<ul class="jqueryFileTree" style="display: none;">']
-    dir_item = ('<li class="directory collapsed">'
-                '<a href="#" rel="%s/">%s</a></li>')
-    file_item = '<li class="file ext_%s"><a href="#" rel="%s">%s</a></li>'
-    if os.path.isdir(real_path):
-        for filename in sorted(os.listdir(real_path)):
-            ext = os.path.splitext(filename)[1][1:].lower()
-            full_requested_path = os.path.join(requested_path, filename)
-            full_real_path = os.path.join(real_path, filename)
-            if os.path.isdir(full_real_path):
-                response.append(dir_item % (full_requested_path, filename))
-            else:
-                response.append(file_item % (ext,
-                                             full_requested_path,
-                                             filename))
-    response.append('</ul>')
-    return HttpResponse(''.join(response))
