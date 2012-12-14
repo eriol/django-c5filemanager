@@ -55,8 +55,8 @@ For example you might have::
         # other apps...
     )
 
-You **don't** have to run ``manage.py syncdb`` because, in this release,
-``django-c5filemanager`` doesn't use any models.
+You **don't** have to run ``manage.py syncdb`` because ``django-c5filemanager``
+doesn't use any models.
 
 .. _urls:
 
@@ -82,38 +82,46 @@ Core Five Filemanager
 You need to use the following fork of the original Filemanager created by Core
 Five: https://github.com/simogeo/Filemanager
 
+Since there aren't releases we need to use a specific git revision. Last
+revision, at the time of this writing, is:
+``5e6bf11431b87b46e52840cf064a18a5a7cb7cba``.
+
 Download
 ~~~~~~~~
 
 You can use ``git``::
 
     $ git clone http://github.com/simogeo/Filemanager.git
+    $ cd Filemanager
+    $ git checkout 5e6bf11431b87b46e52840cf064a18a5a7cb7cba
 
-Or the download page of GitHub: http://github.com/simogeo/Filemanager/archives/master
+Or the download page of GitHub:
+
+https://github.com/simogeo/Filemanager/archive/5e6bf11431b87b46e52840cf064a18a5a7cb7cba.zip
 
 Install
 ~~~~~~~
 
-1. Copy or symlink the folder ``Filemanager`` inside your ``MEDIA_ROOT`` and
+1. Copy or symlink the folder ``Filemanager`` inside your ``STATIC_ROOT`` and
    rename it to lower-case.
 
 2. Create the ``upload`` directory inside ``MEDIA_ROOT``.
 
-Inside ``MEDIA_ROOT`` you might have::
+Inside ``STATIC_ROOT`` you might have::
 
-    $ ls $YOUR_PROJECT_MEDIA_ROOT
-    css  filemanager  images upload
+    $ ls $YOUR_PROJECT_STATIC_ROOT
+    css  filemanager  images
 
 Configure
 ~~~~~~~~~
 
 You have to edit two files: ``filemanager.config.js`` and
-``filemanager.js``. Both will be in ``MEDIA_ROOT/filemanager/scripts``.
+``filemanager.js``. Both will be in ``STATIC_ROOT/filemanager/scripts``.
 
 filemanager.config.js
 """""""""""""""""""""
 
-Inside ``MEDIA_ROOT/filemanager/scripts`` rename the default
+Inside ``STATIC_ROOT/filemanager/scripts`` rename the default
 configuration file (``filemanager.config.js.default``) removing the .default
 at the end of the filename.
 
@@ -122,13 +130,13 @@ other options according your needs.
 
 Assuming your ``MEDIA_URL`` is::
 
-    MEDIA_URL = '/static/'
+    MEDIA_URL = '/media/'
 
 You should have:
 
 .. code-block:: javascript
 
-    var fileRoot = '/static/upload/';
+    var fileRoot = '/media/upload/';
 
 You can ignore (or delete):
 
@@ -136,7 +144,7 @@ You can ignore (or delete):
 
     var lang = 'php';
 
-At this point, your ``MEDIA_ROOT/filemanager/scripts/filemanager.config.js``
+At this point, your ``STATIC_ROOT/filemanager/scripts/filemanager.config.js``
 might be:
 
 .. code-block:: javascript
@@ -153,7 +161,7 @@ might be:
     var am = document.location.pathname.substring(1, document.location.pathname
             .lastIndexOf('/') + 1);
     // Set this to the directory you wish to manage.
-    var fileRoot = '/static/upload/';
+    var fileRoot = '/media/upload/';
 
     // Show image previews in grid views?
     var showThumbs = true;
@@ -161,21 +169,19 @@ might be:
 filemanager.js
 """"""""""""""
 
-You have to change the variables ``treeConnector`` and ``fileConnector``.
+You have to change the ``fileConnector`` variable.
 
 Assuming you are following :ref:`urls` subsection, change:
 
 .. code-block:: javascript
 
     // Sets paths to connectors based on language selection.
-    var treeConnector = 'scripts/jquery.filetree/connectors/jqueryFileTree.' + lang;
     var fileConnector = 'connectors/' + lang + '/filemanager.' + lang;
 
 in:
 
 .. code-block:: javascript
 
-    var treeConnector = '/admin/c5filemanager/dir_list/';
     var fileConnector = '/admin/c5filemanager/';
 
 How to use the filemanager in Django admin site
@@ -184,7 +190,7 @@ How to use the filemanager in Django admin site
 You can put a link to the filemanager index using
 `django-admin-tools <http://www.bitbucket.org/izi/django-admin-tools/>`_.
 
-The filemanager index will be at ``/MEDIA_URL/C5FILEMANAGER_MEDIA/index.html``,
+The filemanager index will be at ``/STATIC_URL/C5FILEMANAGER_MEDIA/index.html``,
 see :ref:`available_settings` for details.
 
 Assuming you are following this document your link might be::
