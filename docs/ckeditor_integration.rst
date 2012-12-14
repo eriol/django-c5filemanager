@@ -1,11 +1,11 @@
 Integration with CKEditor
 =========================
 
-Using CKEditor 3.x or higher you have to set the URL of the filemanager in your
+Using CKEditor 3.x or higher you have to set the URL of the file manager in your
 configure instance.
 
 Assuming you are following this document your URL will be
-``MEDIA_URL/C5FILEMANAGER_MEDIA/index.html``, so your configuration migh be:
+``MEDIA_URL/C5FILEMANAGER_MEDIA/index.html``, so your configuration might be:
 
 .. code-block:: javascript
 

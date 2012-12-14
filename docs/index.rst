@@ -6,7 +6,8 @@
 django-c5filemanager
 ====================
 
-``django-c5filemanager`` is a Django connector for the Core Five Filemanager.
+``django-c5filemanager`` is a Django connector for the Core Five Labs file
+manager.
 
 
 .. toctree::

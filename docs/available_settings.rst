@@ -14,8 +14,8 @@ URL that handles the media served from ``MEDIA_ROOT``::
 
     MEDIA_URL = getattr(settings, 'C5FILEMANAGER_MEDIA_URL', settings.MEDIA_URL)
 
-Filemanager Media Path
-----------------------
+File manager Media Path
+-----------------------
 
 Path of the django-c5filemanager media files::
 
@@ -24,8 +24,8 @@ Path of the django-c5filemanager media files::
 .. important::
     Specified path must be relative to ``STATIC_ROOT``.
 
-Filemanager Upload Directory
-----------------------------
+File manager Upload Directory
+-----------------------------
 
 Path of the django-c5filemanager upload directory::
 

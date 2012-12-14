@@ -184,14 +184,15 @@ in:
 
     var fileConnector = '/admin/c5filemanager/';
 
-How to use the filemanager in Django admin site
------------------------------------------------
+How to use the file manager in Django admin site
+------------------------------------------------
 
-You can put a link to the filemanager index using
+You can put a link to the file manager index using
 `django-admin-tools <http://www.bitbucket.org/izi/django-admin-tools/>`_.
 
-The filemanager index will be at ``/STATIC_URL/C5FILEMANAGER_MEDIA/index.html``,
-see :ref:`available_settings` for details.
+The file manager index will be at
+``/STATIC_URL/C5FILEMANAGER_MEDIA/index.html``, see :ref:`available_settings`
+for details.
 
 Assuming you are following this document your link might be::
 
