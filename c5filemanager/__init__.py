@@ -6,7 +6,7 @@ Copyright (c) 2010-2012 Daniele Tricoli <eriol@mornie.org>
 
 Read LICENSE for more informations.
 """
-VERSION = (0, 2, 0, 'dev')
+VERSION = (0, 2)
 
 def get_version():
     """Returns project version in a human readable form."""

@@ -21,4 +21,4 @@ manager.
 
 
 :Release: |version|
-:Date: |today|
+:Date: 14 December 2012
