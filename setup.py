@@ -16,18 +16,25 @@ def read(filename):
     """Small tool function to read README."""
     return open(os.path.join(os.path.dirname(__file__), filename)).read()
 
-download_page = 'http://downloads.mornie.org/django-c5filemanager/'
+classifiers = '''
+Development Status :: 4 - Beta
+Environment :: Web Environment
+Intended Audience :: Developers
+License :: OSI Approved :: BSD License
+Operating System :: OS Independent
+Programming Language :: Python
+Framework :: Django
+'''.strip().splitlines()
 
 setup(
     name='django-c5filemanager',
     version=get_version(),
+    license = 'BSD',
     description='Django connector for Core Five Filemanager.',
     long_description=read('README'),
     author='Daniele Tricoli',
     author_email='eriol@mornie.org',
     url='http://mornie.org/projects/django-c5filemanager/',
-    download_url='%sdjango-c5filemanager-%s.tar.gz' % (download_page,
-                                                       get_version()),
     packages=find_packages(),
     package_data = {
         'c5filemanager': [
@@ -38,13 +45,5 @@ setup(
         'simplejson>=2.1.0',
         'PIL',
     ],
-    classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Environment :: Web Environment',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Framework :: Django',
-    ],
+    classifiers = classifiers,
 )
