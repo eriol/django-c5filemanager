@@ -1,7 +1,7 @@
 # django-c5filemanager French l18n.
 # Copyright (C) 2010 Delia Ventura
 # This file is distributed under the same license as the PACKAGE package.
-# Delia Ventura <deli@mornie.org>, 2010.
+# Delia Ventura <deli@flabellina.org>, 2010.
 #
 #, fuzzy
 msgid ""
