@@ -6,5 +6,3 @@ provides an easy way to add Core Five Labs file manager to your Django project.
 
 For more info see the documentation in the ``docs`` directory or `browse it
 online <http://docs.mornie.org/django-c5filemanager/>`_.
-
-Thanks for downloading django-c5filemanager.
