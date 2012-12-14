@@ -10,4 +10,6 @@ VERSION = (0, 1)
 
 def get_version():
     """Returns project version in a human readable form."""
-    return '.'.join(str(v) for v in VERSION)
+    version = '.'.join(str(v) for v in VERSION[:3])
+    sub = ''.join(str(v) for v in VERSION[3:])
+    return version + sub
